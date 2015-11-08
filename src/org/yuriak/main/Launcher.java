@@ -117,8 +117,8 @@ public class Launcher {
 	 */
 	public void collect(int saveMethod) throws Exception{
 		StockDao stockDao=new StockDao();
-		StockIDCrawler crawler=new StockIDCrawler(System.getProperty("user.dir")+File.separator+"data");
-		StockInfoCrawler infoCrawler=new StockInfoCrawler(System.getProperty("user.dir")+File.separator+"data");
+		StockIDCrawler crawler=new StockIDCrawler(System.getProperty("user.dir")+File.separator+"crawldb");
+		StockInfoCrawler infoCrawler=new StockInfoCrawler(System.getProperty("user.dir")+File.separator+"crawldb");
 		ArrayList<StockBean> stocks=infoCrawler.getStockInfo(crawler.getAllStock());
 		Collections.sort(stocks);
 		switch (saveMethod) {
