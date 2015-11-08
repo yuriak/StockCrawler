@@ -3,6 +3,8 @@ package org.yuriak.crawler;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jsoup.nodes.Document;
 import org.yuriak.bean.StockBean;
@@ -23,7 +25,7 @@ public class StockInfoCrawler extends DeepCrawler {
 
 	@Override
 	public Links visitAndGetNextLinks(Page page) {
-		if (!page.getUrl().equals("http://doctor.10jqka.com.cn/client.html")&&!page.getDoc().title().trim().equals("牛叉诊股-个股分析利器_同花顺金融网")) {
+		if (page.getDoc().select(".m_searchbar").size()<=0) {
 			Document document=page.getDoc();
 			StockBean stock=new StockBean();
 			String name=document.select(".stockname").text().split("（")[0];
@@ -53,11 +55,10 @@ public class StockInfoCrawler extends DeepCrawler {
 			stock.setDate(date==null?new Date(System.currentTimeMillis()):MyTimeUtil.convertStringDateToDate(date,true));
 			this.stockList.add(stock);
 		}
-		
 		return null;
 	}
 	
-	public ArrayList<StockBean> getStockInfo(ArrayList<String> stocks) throws Exception{
+	public ArrayList<StockBean> getStockInfo(Set<String> stocks) throws Exception{
 		stockList=new ArrayList<>();
 		for (String id : stocks) {
 			this.addSeed("http://doctor.10jqka.com.cn/"+id+"/");
@@ -65,4 +66,10 @@ public class StockInfoCrawler extends DeepCrawler {
 		this.start(1);
 		return this.stockList;
 	}
+//	public static void main(String[] args) throws Exception {
+//		StockInfoCrawler crawler=new StockInfoCrawler("data");
+//		Set hSet=new HashSet<String>();
+//		hSet.add("600616");
+//		crawler.getStockInfo(hSet);
+//	}
 }

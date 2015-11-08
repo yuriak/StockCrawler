@@ -5,13 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.yuriak.bean.StockBean;
-
-import cn.edu.hfut.dmic.webcollector.util.FileUtils;
 
 public class MyFileUtil {
 	public static void writeInfoToFile(ArrayList<StockBean> stocks) throws Exception{
@@ -29,7 +29,8 @@ public class MyFileUtil {
 			stockObject.put("date", stock.getDate());
 			stockArray.put(stockObject);
 		}
-		FileUtils.writeFile("data/stockInfo"+new Date(System.currentTimeMillis())+".txt", mainData.toString(), "utf-8");
+		String time=new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Timestamp(System.currentTimeMillis()));
+		FileUtils.write(new File(System.getProperty("user.dir")+File.separator+"data/stockInfo"+time+".txt"), mainData.toString(), "UTF-8");
 	}
 	
 	public static ArrayList<StockBean> readInfoFromFile(String fileName){
@@ -37,7 +38,7 @@ public class MyFileUtil {
 		String content="";
 		try {
 			File file=new File(fileName);
-			content=new String(FileUtils.readFile(file),"utf-8");
+			content=new String(FileUtils.readFileToByteArray(file),"utf-8");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return stockList;

@@ -17,7 +17,12 @@ public class MyTimeUtil {
 			return new Timestamp(System.currentTimeMillis());
 		}
 	}
-	
+	/**
+	 * 
+	 * @param date String value
+	 * @param fore  true:yyyy年mm月dd日  false:yyyy-MM-dd
+	 * @return
+	 */
 	public static Date convertStringDateToDate(String date,boolean fore){
 		try {
 			Format format;

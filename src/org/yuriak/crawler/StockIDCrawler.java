@@ -12,7 +12,7 @@ import cn.edu.hfut.dmic.webcollector.model.Links;
 import cn.edu.hfut.dmic.webcollector.model.Page;
 
 public class StockIDCrawler extends DeepCrawler {
-	private ArrayList<String> stocks;
+	private HashSet<String> stocks;
 	
 	public StockIDCrawler(String crawlPath) {
 		super(crawlPath);
@@ -26,10 +26,13 @@ public class StockIDCrawler extends DeepCrawler {
 		if (page.getUrl().equals("http://bbs.10jqka.com.cn/codelist.html")) {
 			Document document=page.getDoc();
 			Elements elements=document.select(".bbsilst_wei3");
-			for (int i = 0; i <= 1; i++) {
+			for (int i = 0; i<elements.size(); i++) {
+				String title=elements.get(i).select("span.l").text();
 				Elements list=elements.get(i).select("li");
-				for (int j = 0; j < list.size(); j++) {
-					jqStock.add(list.get(j).select("a").attr("href").split(",")[1]);
+				if (title.equals("沪市")||title.equals("深市")) {
+					for (int j = 0; j < list.size(); j++) {
+						jqStock.add(list.get(j).select("a").attr("href").split(",")[1]);
+					}
 				}
 			}
 		}
@@ -37,28 +40,26 @@ public class StockIDCrawler extends DeepCrawler {
 			Document document=page.getDoc();
 			Elements elements=document.select("#quotesearch").get(0).getElementsByTag("li");
 			for (int i = 0; i < elements.size(); i++) {
-				quStock.add(elements.get(i).getElementsByTag("a").last().attr("href").split("/")[3].substring(2,8));
+				String idAndName=elements.get(i).select("a").last().text();
+				quStock.add(idAndName.split("\\(")[1].split("\\)")[0]);
 			}
 		}
-		quStock.removeAll(jqStock);
-		jqStock.addAll(quStock);
-		stocks=jqStock;
+		stocks.addAll(jqStock);
+		stocks.addAll(quStock);
 		return null;
 	}
 	
-	public ArrayList<String> getAllStock() throws Exception{
-		this.stocks=new ArrayList<>();
+	public Set<String> getAllStock() throws Exception{
+		this.stocks=new HashSet<>();
 		this.addSeed("http://bbs.10jqka.com.cn/codelist.html");
 		this.addSeed("http://quote.eastmoney.com/stocklist.html");
 		this.start(1);
-		System.out.println(this.stocks.size());
 		return this.stocks;
 	}
 	
 	public static void main(String[] args) throws Exception {
 		StockIDCrawler crawler=new StockIDCrawler("data");
-		crawler.addSeed("http://quote.eastmoney.com/stocklist.html");
-		crawler.start(1);
+		crawler.getAllStock();
 	}
 	
 }
