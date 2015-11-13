@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Properties;
 
 import javax.jws.Oneway;
+import javax.naming.ldap.SortControl;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -104,6 +105,7 @@ public class Launcher {
 	}
 	
 	public void initSystem() throws Exception{
+		System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");
 		Properties prop = new Properties();
 		prop.load(new FileInputStream(new File("conf/conf.properties")));
 		CommonValue.DB_URL=prop.getProperty("DBUrl");
@@ -185,5 +187,6 @@ public class Launcher {
 			return number;
 		}
 	}
+	
 	
 }
