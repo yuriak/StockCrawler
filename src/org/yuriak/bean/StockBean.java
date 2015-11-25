@@ -56,15 +56,7 @@ public class StockBean implements Comparable<StockBean> {
 	private Date date;
 	@Override
 	public int compareTo(StockBean o) {
-		if (this.score>o.score) {
-			return -1;
-		}else if(this.score==o.score) {
-			return 0;
-		}else if (this.score<o.score) {
-			return 1;
-		}else {
-			return 1;
-		}
+		return this.score>=o.getScore()?1:-1;
 	}
 	
 	

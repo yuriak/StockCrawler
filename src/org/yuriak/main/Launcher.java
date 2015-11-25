@@ -26,6 +26,7 @@ import org.yuriak.dao.StockDao;
 import org.yuriak.util.MyDBUtil;
 import org.yuriak.util.MyFileUtil;
 import org.yuriak.util.MyTimeUtil;
+import org.yuriak.util.SortUtil;
 
 public class Launcher {
 	
@@ -122,7 +123,7 @@ public class Launcher {
 		StockIDCrawler crawler=new StockIDCrawler(System.getProperty("user.dir")+File.separator+"crawldb");
 		StockInfoCrawler infoCrawler=new StockInfoCrawler(System.getProperty("user.dir")+File.separator+"crawldb");
 		ArrayList<StockBean> stocks=infoCrawler.getStockInfo(crawler.getAllStock());
-		Collections.sort(stocks);
+		stocks=SortUtil.sort(stocks);
 		switch (saveMethod) {
 		case 0:
 			MyFileUtil.writeInfoToFile(stocks);
