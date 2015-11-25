@@ -124,6 +124,7 @@ public class Launcher {
 		StockInfoCrawler infoCrawler=new StockInfoCrawler(System.getProperty("user.dir")+File.separator+"crawldb");
 		ArrayList<StockBean> stocks=infoCrawler.getStockInfo(crawler.getAllStock());
 		stocks=SortUtil.sort(stocks);
+		stockDao.updateNewStock(stocks);
 		switch (saveMethod) {
 		case 0:
 			MyFileUtil.writeInfoToFile(stocks);

@@ -10,7 +10,8 @@ public class CommonValue {
 	public static  String DRIVER_NAME="com.mysql.jdbc.Driver";
 	public static  String DB_URL="jdbc:mysql://localhost:3306/stockdb?characterEncoding=UTF-8";
 	public static  String TABLE_NAME="stocktable";
+	public static  String STOCK_ID_TABLE_NAME="stockinfotable"; 
 	public static  String DB_USERNAME="root";
-	public static  String DB_PASSWORD="wmh67392982";
+	public static  String DB_PASSWORD="";
 	
 }

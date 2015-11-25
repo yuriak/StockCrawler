@@ -14,6 +14,7 @@ import org.yuriak.bean.StockBean;
 import org.yuriak.config.CommonValue;
 import org.yuriak.util.CommonUtil;
 import org.yuriak.util.MyDBUtil;
+import org.yuriak.util.MyFileUtil;
 
 public class StockDao {
 	
@@ -177,6 +178,58 @@ public class StockDao {
 		         se.printStackTrace();
 		      }//end finally try
 		   }
+	}
+	
+	public ArrayList<StockBean> getAllStockID(){
+		try {
+			ArrayList<StockBean> beans=new ArrayList<>();
+			connection=myDBUtil.getConnection();
+			statement=connection.createStatement();
+			String sql="select * from "+CommonValue.STOCK_ID_TABLE_NAME;
+			ResultSet resultSet=statement.executeQuery(sql);
+			while (resultSet.next()) {
+				StockBean bean=new StockBean();
+				bean.setID(resultSet.getString("stockid"));
+				beans.add(bean);
+			}
+			resultSet.close();
+			statement.close();
+			connection.close();
+			return beans;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public void updateNewStock(ArrayList<StockBean> beans){
+		ArrayList<StockBean> idBeans=getAllStockID();
+		for (StockBean stockBean : beans) {
+			if (!containID(stockBean, idBeans)) {
+				try {
+					connection=myDBUtil.getConnection();
+					statement=connection.createStatement();
+					String sql="insert into "+CommonValue.STOCK_ID_TABLE_NAME+"(stockid) values('"+stockBean.getID()+"')";
+					statement.execute(sql);
+					statement.close();
+					connection.close();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+		}
+	}
+	
+	private boolean containID(StockBean bean,ArrayList<StockBean> Beans){
+		for (StockBean stockBean : Beans) {
+			if (stockBean.getID().equals(bean.getID())) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 }
