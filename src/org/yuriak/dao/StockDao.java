@@ -15,6 +15,7 @@ import org.yuriak.config.CommonValue;
 import org.yuriak.util.CommonUtil;
 import org.yuriak.util.MyDBUtil;
 import org.yuriak.util.MyFileUtil;
+import org.yuriak.util.MyTimeUtil;
 
 public class StockDao {
 	
@@ -30,7 +31,7 @@ public class StockDao {
 			ArrayList<StockBean> stockList=new ArrayList<StockBean>();
 			connection=myDBUtil.getConnection();
 			statement=connection.createStatement();
-			ResultSet resultSet=statement.executeQuery("select * from "+CommonValue.TABLE_NAME+" where stockid='"+StockID+"' order by stockdate desc");
+			ResultSet resultSet=statement.executeQuery("select * from "+CommonValue.TABLE_NAME+" where stockid='"+StockID+"' order by stockdate asc");
 			while (resultSet.next()) {
 				StockBean stock=new StockBean();
 				stock.setID(resultSet.getString("stockid"));
@@ -146,11 +147,17 @@ public class StockDao {
 		   }
 	}
 	
-	public void SaveOneDayStockInfoToDB(ArrayList<StockBean> stockList){
+	public void SaveOneDayStockInfoToDB(List<StockBean> stockList){
 		try {
 			connection=myDBUtil.getConnection();
 			statement=connection.createStatement();
 			for (StockBean stockBean : stockList) {
+				String checkRepeatSql="select stockid from "+CommonValue.TABLE_NAME+" where stockid='"+stockBean.getID()+"' and stockdate='"+stockBean.getDate()+"'";
+				ResultSet resultSet = statement.executeQuery(checkRepeatSql);
+				if (resultSet.next()) {
+					System.out.println("duplicate stock "+stockBean.getID()+" in "+stockBean.getDate());
+					continue;
+				}
 				String sql = "insert into stocktable(stockid,stockname,stockprice,stockscore,stockadvice,stockdate,stockevaluation)"
 						+ " values('"+stockBean.getID()+"','"
 						+stockBean.getName()+"',"
@@ -203,7 +210,7 @@ public class StockDao {
 		}
 	}
 	
-	public void updateNewStock(ArrayList<StockBean> beans){
+	public void updateNewStock(List<StockBean> beans){
 		ArrayList<StockBean> idBeans=getAllStockID();
 		for (StockBean stockBean : beans) {
 			if (!containID(stockBean, idBeans)) {
@@ -218,7 +225,6 @@ public class StockDao {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
 			}
 		}
 	}

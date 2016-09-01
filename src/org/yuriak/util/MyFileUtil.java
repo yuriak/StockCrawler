@@ -7,6 +7,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -14,7 +15,7 @@ import org.json.JSONObject;
 import org.yuriak.bean.StockBean;
 
 public class MyFileUtil {
-	public static void writeInfoToFile(ArrayList<StockBean> stocks) throws Exception{
+	public static void writeInfoToFile(List<StockBean> stocks) throws Exception{
 		JSONObject mainData=new JSONObject();
 		JSONArray stockArray=new JSONArray();
 		mainData.put("StockInfo", stockArray);
@@ -54,7 +55,7 @@ public class MyFileUtil {
 			bean.setScore(object.getDouble("score"));
 			bean.setAdvice(object.getInt("advice"));
 			bean.setEvaluation(object.getString("evaluation"));
-			bean.setDate(MyTimeUtil.convertStringDateToDate(object.getString("date"),false));
+			bean.setDate(MyTimeUtil.convertStringDateToDate(object.getString("date"),MyTimeUtil.SIMPLE_MODE));
 			stockList.add(bean);
 		}
 		return stockList;

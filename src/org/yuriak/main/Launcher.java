@@ -10,18 +10,18 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
 
 import javax.jws.Oneway;
 import javax.naming.ldap.SortControl;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.io.SAXReader;
 import org.yuriak.bean.StockBean;
 import org.yuriak.config.CommonValue;
 import org.yuriak.crawler.StockIDCrawler;
 import org.yuriak.crawler.StockInfoCrawler;
+import org.yuriak.crawler.StockPriceCrawler;
 import org.yuriak.dao.StockDao;
 import org.yuriak.util.MyDBUtil;
 import org.yuriak.util.MyFileUtil;
@@ -37,7 +37,7 @@ public class Launcher {
 		}
 		Launcher launcher=new Launcher();
 		try {
-//			launcher.initSystem();
+			launcher.initSystem();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
@@ -65,7 +65,7 @@ public class Launcher {
 				return;
 			}
 			String dateParam=args[1];
-			launcher.showOneDayData(MyTimeUtil.convertStringDateToDate(dateParam, false));
+			launcher.showOneDayData(MyTimeUtil.convertStringDateToDate(dateParam, MyTimeUtil.SIMPLE_MODE));
 			break;
 		case "showonestock":
 			if (args[1].isEmpty()||args[1].equals("")||!args[1].matches("\\d{6}")) {
@@ -76,24 +76,6 @@ public class Launcher {
 			launcher.showOne(idParam, 0);
 			break;
 		}
-//		StockDao stockDao=new StockDao();
-//		collect();
-//		throw new IllegalArgumentException("数据不合法");
-//		showOne("002156");
-//		showOneDay(MyTimeUtil.convertStringDateToDate("2015年6月5日"));
-//		showOneDay(MyTimeUtil.convertStringDateToDate("2015年6月8日"));
-//		showData(MyTimeUtil.convertStringDateToDate("2015年6月8日"));
-//		ArrayList<StockBean> stocks=MyFileUtil.readInfoFromFile("data/stockInfo2015-07-17.txt");
-//		stockDao.SaveOneDayStockInfoToDB(stocks);
-//		System.out.println("done");
-//		ArrayList<StockBean> stocks=stockDao.findOneDayStockInfo(MyTimeUtil.convertStringDateToDate("2015-07-17", false));
-//		MyFileUtil.writeInfoToFile(stocks);
-//		System.out.println("done");
-//		showOne("");
-//		showOneDayData(MyTimeUtil.convertStringDateToDate("2015-06-24", false));
-//		showOne("603002",0);
-//		showOne("东风汽车",1);
-//		showOneDay(MyTimeUtil.convertStringDateToDate("2015-07-17", false));
 	}
 	
 	public void showOneDayData(Date day){
@@ -106,7 +88,6 @@ public class Launcher {
 	}
 	
 	public void initSystem() throws Exception{
-		System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");
 		Properties prop = new Properties();
 		prop.load(new FileInputStream(new File("conf/conf.properties")));
 		CommonValue.DB_URL=prop.getProperty("DBUrl");
@@ -119,22 +100,33 @@ public class Launcher {
 	 * @throws Exception
 	 */
 	public void collect(int saveMethod) throws Exception{
-		StockDao stockDao=new StockDao();
-		StockIDCrawler crawler=new StockIDCrawler(System.getProperty("user.dir")+File.separator+"crawldb");
-		StockInfoCrawler infoCrawler=new StockInfoCrawler(System.getProperty("user.dir")+File.separator+"crawldb");
-		ArrayList<StockBean> stocks=infoCrawler.getStockInfo(crawler.getAllStock());
-		stocks=SortUtil.sort(stocks);
-		stockDao.updateNewStock(stocks);
+		StockDao stockDao;
+		StockIDCrawler crawler=new StockIDCrawler();
+		StockInfoCrawler infoCrawler=new StockInfoCrawler();
+		StockPriceCrawler priceCrawler=new StockPriceCrawler();
+		List<String> stockIDs = crawler.getAllStockID();
+		if (stockIDs.size()<=0) {
+			return;
+		}
+		List<StockBean> stocks=infoCrawler.getAllStockInfo(stockIDs);
+		if (stocks.size()<=0) {
+			return;
+		}
+		stocks=priceCrawler.getPrice(stocks);
 		switch (saveMethod) {
 		case 0:
 			MyFileUtil.writeInfoToFile(stocks);
 			break;
 		case 1:
+			stockDao=new StockDao();
 			stockDao.SaveOneDayStockInfoToDB(stocks);
+			stockDao.updateNewStock(stocks);
 			break;
 		case 2:
+			stockDao=new StockDao();
 			MyFileUtil.writeInfoToFile(stocks);
 			stockDao.SaveOneDayStockInfoToDB(stocks);
+			stockDao.updateNewStock(stocks);
 			break;
 		}
 		

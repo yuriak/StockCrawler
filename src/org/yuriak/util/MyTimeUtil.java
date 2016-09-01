@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.sql.Date;
 
 public class MyTimeUtil {
+	public static int CHN_MODE=0;
+	public static int SIMPLE_MODE=1;
 	public static Timestamp convertStringToTimeStamp(String time){
 		try {
 			Format f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -23,11 +25,14 @@ public class MyTimeUtil {
 	 * @param fore  true:yyyy年mm月dd日  false:yyyy-MM-dd
 	 * @return
 	 */
-	public static Date convertStringDateToDate(String date,boolean fore){
+
+	public static Date convertStringDateToDate(String date,int mode){
 		try {
 			Format format;
-			if (fore) {
+			if (mode==CHN_MODE) {
 				format=new SimpleDateFormat("yyyy年MM月dd日");
+			}else if (mode==SIMPLE_MODE) {
+				format=new SimpleDateFormat("yyyy-MM-dd");
 			}else {
 				format=new SimpleDateFormat("yyyy-MM-dd");
 			}
